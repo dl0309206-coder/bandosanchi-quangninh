@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bản đồ Truyền thông Chính sách Sán Chỉ</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body { margin: 0; padding: 0; background: #000; }
+        #map { height: 100vh; width: 100%; }
+        
+        /* Bảng chú thích (Legend) chuẩn hóa */
+        .legend {
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            padding: 12px;
+            border-radius: 8px;
+            line-height: 22px;
+            font-family: Arial, sans-serif;
+            font-size: 13px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+            border: 1px solid #999;
+        }
+        .legend i {
+            width: 14px;
+            height: 14px;
+            display: inline-block;
+            margin-right: 8px;
+            vertical-align: middle;
+            border-radius: 50%;
+            border: 1px solid #fff;
+        }
+        .legend b {
+            display: block;
+            margin-bottom: 5px;
+            color: #003366;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // 1. Khởi tạo bản đồ - Tập trung vào vùng Đông Bắc (Bình Liêu, Tiên Yên)
+        var map = L.map('map').setView([21.48, 107.5], 10);
+
+        // 2. Lớp nền Vệ tinh
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}').addTo(map);
+
+        // 3. Toạ độ ranh giới chuẩn hoá bao quanh tỉnh Quảng Ninh
+        var qnBoundary = [
+            [21.05, 106.5], [21.30, 106.6], [21.45, 106.9], [21.60, 107.2], 
+            [21.75, 107.4], [21.92, 107.7], [21.55, 108.1], [21.35, 108.0], 
+            [20.95, 107.7], [20.75, 107.2], [20.85, 106.8], [21.05, 106.5]
+        ];
+
+        // 4. Hiệu ứng "Bo vùng" - Che mờ các tỉnh ngoài Quảng Ninh
+        var worldMask = [
+            [[-90, -180], [-90, 180], [90, 180], [90, -180], [-90, -180]], 
+            qnBoundary 
+        ];
+        L.polygon(worldMask, {
+            color: '#000', weight: 0, fillColor: '#000', fillOpacity: 0.7
+        }).addTo(map);
+
+        // Đường viền ranh giới tỉnh màu xanh sáng
+        L.polygon(qnBoundary, { color: '#00d4ff', weight: 2, fillOpacity: 0 }).addTo(map);
+
+        // 5. CHUẨN HÓA ĐỊNH VỊ CÁC ĐIỂM NÚT (Dữ liệu nghiên cứu)
+        var dataPoints = [
+            { 
+                name: "Đảng uỷ xã Húc Động", 
+                coords: [21.511, 107.576], 
+                cat: "policy", 
+                detail: "Cơ quan chỉ đạo thực hiện chính sách bảo tồn cấp cơ sở." 
+            },
+            { 
+                name: "Tòa soạn hội tụ (Tiên Yên)", 
+                coords: [21.325, 107.412], 
+                cat: "media", 
+                detail: "Điểm trung chuyển và sản xuất nội dung truyền thông đa phương tiện." 
+            },
+            { 
+                name: "Xưởng miến dong Húc Động", 
+                coords: [21.516, 107.584], 
+                cat: "production", 
+                detail: "Truyền thông chính sách kinh tế OCOP thông qua sản phẩm đặc trưng." 
+            },
+            { 
+                name: "Lễ hội Mùa vàng Bình Liêu", 
+                coords: [21.560, 107.510], 
+                cat: "event", 
+                detail: "Không gian thực hành truyền thông văn hóa trải nghiệm." 
+            },
+            { 
+                name: "Hội Soóng Cọ", 
+                coords: [21.503, 107.572], 
+                cat: "event", 
+                detail: "Hình thức truyền thông cộng đồng trực tiếp giữa người dân." 
+            }
+        ];
+
+        // Màu sắc chuẩn hóa cho từng nhóm
+        function setStyle(category) {
+            if (category === 'policy') return "#ff0000"; // Đỏ rực (Chính trị)
+            if (category === 'media') return "#0074D9";  // Xanh dương (Truyền thông)
+            if (category === 'production') return "#2ECC40"; // Xanh lá (Sản xuất)
+            return "#FFDC00"; // Vàng (Lễ hội)
+        }
+
+        dataPoints.forEach(function(p) {
+            L.circleMarker(p.coords, {
+                radius: 11,
+                fillColor: setStyle(p.cat),
+                color: "#fff",
+                weight: 2,
+                fillOpacity: 1
+            }).addTo(map).bindPopup("<b>" + p.name + "</b><hr>" + p.detail);
+        });
+
+        // 6. CHUẨN HÓA BẢNG CHÚ THÍCH (LEGEND)
+        var legend = L.control({position: 'bottomright'});
+        legend.onAdd = function (map) {
+            var div = L.DomUtil.create('div', 'legend');
+            div.innerHTML += '<b>HỆ SINH THÁI TRUYỀN THÔNG</b>';
+            div.innerHTML += '<i style="background: #ff0000"></i> Đảng ủy - Chính quyền<br>';
+            div.innerHTML += '<i style="background: #0074D9"></i> Tòa soạn - Truyền thông<br>';
+            div.innerHTML += '<i style="background: #2ECC40"></i> Sản xuất - Miến dong<br>';
+            div.innerHTML += '<i style="background: #FFDC00"></i> Lễ hội - Văn hóa';
+            return div;
+        };
+        legend.addTo(map);
+
+    </script>
+</body>
+</html>
