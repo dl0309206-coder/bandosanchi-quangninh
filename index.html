@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <title>Nghiên cứu Hệ sinh thái Truyền thông Sán Chỉ</title>
+    <title>Kênh truyền thông chính sách với người Sán Chỉ ở Quảng Ninh</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -87,12 +87,12 @@
 
     <section class="page-intro" id="intro">
         <div class="content-box">
-            <h1>HỆ SINH THÁI TRUYỀN THÔNG VĂN HÓA SÁN CHỈ</h1>
-            <h3>Đề tài nghiên cứu: Các điểm nút truyền thông chính sách tại Quảng Ninh</h3>
+            <h1>Kênh truyền thông chính sách với người Sán Chỉ ở Quảng Ninh</h1>
+            <h3> Các kênh truyền thông chính sách tại Quảng Ninh</h3>
             <p style="text-align: justify; font-size: 1.1rem;">
-                Nghiên cứu này định vị các kênh truyền thông đa chiều: Từ văn bản chỉ đạo của Đảng ủy, 
-                đến các tòa soạn hội tụ, không gian sản xuất OCOP và các lễ hội văn hóa đặc trưng. 
-                Sản phẩm giúp hình dung rõ nét luồng chảy thông tin bảo tồn di sản trong cộng đồng.
+                Xác định các kênh truyền thông đa chiều: Từ văn bản chỉ đạo của Đảng ủy, 
+                không gian sản xuất OCOP và các lễ hội văn hóa đặc trưng. 
+                Sản phẩm giúp hình dung rõ nét các vị trí cung cấp thông tin chính sách bảo tồn và phát huy giá trị văn hoá dân tộc Sán Chỉ ở tỉnh Quảng Ninh
             </p>
         </div>
         <a href="#map-section" class="scroll-down">▼ Khám phá bản đồ</a>
@@ -117,8 +117,7 @@
             { name: "Tòa soạn hội tụ", coords: [21.325, 107.412], cat: "media", detail: "Sản xuất nội dung truyền thông số." },
             { name: "Xưởng miến dong Húc Động", coords: [21.516, 107.584], cat: "production", detail: "Kênh truyền thông qua sản phẩm OCOP." },
             { name: "Lễ hội Mùa vàng", coords: [21.560, 107.510], cat: "event", detail: "Truyền thông văn hóa trải nghiệm." }
-        ];
-
+        ]
         function setStyle(c) {
             return c === 'policy' ? "#ff0000" : c === 'media' ? "#0074D9" : c === 'production' ? "#2ECC40" : "#FFDC00";
         }
