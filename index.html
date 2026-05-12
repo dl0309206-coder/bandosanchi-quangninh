@@ -1,131 +1,139 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <title>Hệ sinh thái Truyền thông Sán Chỉ</title>
+    <title>Hệ sinh thái Truyền thông Sán Chỉ - Quảng Ninh</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- Tải thư viện bản đồ từ nguồn bảo mật HTTPS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
 
     <style>
-        body, html { margin: 0; padding: 0; height: 100%; scroll-behavior: smooth; font-family: sans-serif; background: #000; }
-        
-        /* Trang giới thiệu với ảnh nền .jpg */
+        body, html { margin: 0; padding: 0; height: 100%; scroll-behavior: smooth; font-family: 'Segoe UI', Arial, sans-serif; overflow-x: hidden; }
         .page-intro {
             height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;
-            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('trangdau.jpg') no-repeat center center;
-            background-size: cover; color: white; text-align: center;
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('trangdau.png') no-repeat center center;
+            background-size: cover; color: white; text-align: center; position: relative;
         }
-        
-        .content-box { padding: 40px; background: rgba(0,0,0,0.6); border: 1px solid #f1c40f; border-radius: 15px; margin: 20px; }
-        h1 { color: #f1c40f; text-transform: uppercase; margin-bottom: 10px; }
-        
-        .scroll-down { margin-top: 20px; color: #f1c40f; text-decoration: none; font-weight: bold; border: 2px solid #f1c40f; padding: 10px 20px; border-radius: 5px; }
-        
-        /* Khu vực bản đồ */
+        .content-box { max-width: 900px; padding: 50px; background: rgba(255,255,255,0.08); border-radius: 25px; backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.2); margin: 0 20px; }
+        .page-intro h1 { font-size: 2.8rem; color: #f1c40f; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; }
+        .scroll-down { position: absolute; bottom: 40px; color: #f1c40f; text-decoration: none; font-weight: bold; font-size: 1.2rem; animation: bounce 2s infinite; cursor: pointer; }
         .page-map { height: 100vh; width: 100%; position: relative; }
-        #map { height: 100%; width: 100%; }
-        
-        .btn-back { position: absolute; top: 20px; left: 20px; z-index: 1000; padding: 10px; background: #000; color: #f1c40f; border: 2px solid #f1c40f; text-decoration: none; font-weight: bold; border-radius: 5px; }
-        
-        /* Modal chi tiết ảnh */
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; display: none; color: white; overflow-y: auto; text-align: center; }
-        .overlay-content { max-width: 800px; margin: 50px auto; padding: 20px; }
-        .close-btn { font-size: 40px; color: #f1c40f; cursor: pointer; position: absolute; top: 20px; right: 30px; }
-        .pop-img { width: 100%; border-radius: 10px; border: 2px solid #f1c40f; }
-        
-        .btn-detail { background: #f1c40f; color: #000; border: none; padding: 8px; width: 100%; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        #map { height: 100%; width: 100%; background: #000; }
+        .btn-back { position: absolute; top: 20px; left: 20px; z-index: 1000; padding: 10px 15px; background: #000; color: #f1c40f; border: 2px solid #f1c40f; text-decoration: none; border-radius: 8px; font-weight: bold; }
+        .discovery-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 2000; display: none; color: white; overflow-y: auto; padding: 60px 20px; }
+        .discovery-content { max-width: 1000px; margin: 0 auto; }
+        .close-discovery { position: fixed; top: 25px; right: 35px; font-size: 50px; color: #f1c40f; cursor: pointer; }
+        .discovery-img { width: 100%; max-height: 450px; object-fit: contain; border-radius: 10px; margin-bottom: 35px; border: 2px solid #f1c40f; background: #111; }
+        .discovery-text h2 { color: #f1c40f; font-size: 2.2rem; margin-bottom: 20px; }
+        .discovery-text p { font-size: 1.2rem; line-height: 1.8; color: #ccc; }
+        .btn-explore { display: block; width: 100%; padding: 10px; background: #f1c40f; color: #000; text-align: center; border-radius: 6px; text-decoration: none; font-weight: bold; margin-top: 12px; border: none; cursor: pointer; }
+        .legend { background: rgba(255, 255, 255, 0.95); padding: 15px; border-radius: 10px; color: #333; font-size: 13px; box-shadow: 0 0 15px rgba(0,0,0,0.5); }
+        .legend i { width: 14px; height: 14px; display: inline-block; margin-right: 10px; border-radius: 50%; vertical-align: middle; }
+        @keyframes bounce { 0%, 20%, 50%, 80%, 100% {transform: translateY(0);} 40% {transform: translateY(-10px);} 60% {transform: translateY(-5px);} }
     </style>
 </head>
 <body>
 
-    <!-- TRANG 1: GIỚI THIỆU -->
-    <section class="page-intro">
+    <section class="page-intro" id="intro">
         <div class="content-box">
             <h1>Hệ sinh thái Truyền thông Sán Chỉ</h1>
-            <p>Định vị 25 điểm nút truyền thông chính sách tại Quảng Ninh</p>
-            <br>
-            <a href="#map-section" class="scroll-down">KHÁM PHÁ BẢN ĐỒ</a>
+            <p>Hệ thống định vị 25 điểm nút truyền thông bảo tồn văn hóa tại Quảng Ninh.</p>
         </div>
+        <a href="#map-section" class="scroll-down">▼ KHÁM PHÁ BẢN ĐỒ</a>
     </section>
 
-    <!-- TRANG 2: BẢN ĐỒ -->
     <section id="map-section" class="page-map">
-        <a href="#" class="btn-back" onclick="window.location.reload()">⬅ QUAY LẠI</a>
+        <a href="#intro" class="btn-back">⬅ QUAY LẠI</a>
         <div id="map"></div>
     </section>
 
-    <!-- LỚP PHỦ XEM CHI TIẾT -->
-    <div id="overlay" class="overlay">
-        <span class="close-btn" onclick="closePopup()">&times;</span>
-        <div class="overlay-content" id="overlayBody"></div>
+    <div id="discoveryOverlay" class="discovery-overlay">
+        <span class="close-discovery" onclick="closeDiscovery()">&times;</span>
+        <div class="discovery-content" id="discoveryBody"></div>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
     
     <script>
-        // 1. Khởi tạo bản đồ
-        var map = L.map('map').setView([21.3, 107.3], 9);
+        var map = L.map('map', { minZoom: 8 });
 
-        // 2. Thêm lớp nền vệ tinh (Dùng HTTPS để tránh lỗi màn hình đen trên GitHub)
         L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}').addTo(map);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png').addTo(map);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', { opacity: 0.9 }).addTo(map);
 
         var clusters = L.markerClusterGroup();
 
-        // 3. Danh sách 25 điểm dữ liệu (.jpg)
-        var locations = [
-            { id: 1, name: "UBND Tỉnh Quảng Ninh", coords: [20.9416, 107.1237], img: "1.jpg" },
-            { id: 2, name: "Sở Văn hóa & Thể thao", coords: [20.9441, 107.1226], img: "2.jpg" },
-            { id: 3, name: "Ban Tuyên Giáo Hạ Long", coords: [20.9503, 107.0762], img: "3.jpg" },
-            { id: 4, name: "TT Truyền Thông QN", coords: [20.9550, 107.1003], img: "4.jpg" },
-            { id: 5, name: "Văn Phòng Tỉnh Uỷ", coords: [20.9415, 107.1221], img: "5.jpg" },
-            { id: 6, name: "Thác Khe Vằn", coords: [21.4859, 107.4783], img: "6.jpg" },
-            { id: 7, name: "NVH Bình Liêu", coords: [21.5257, 107.4001], img: "7.jpg" },
-            { id: 8, name: "Đình Lục Nà", coords: [21.5496, 107.4293], img: "8.jpg" },
-            { id: 9, name: "Bảo tàng Quảng Ninh", coords: [20.9487, 107.0975], img: "9.jpg" },
-            { id: 10, name: "UBND Tiên Yên", coords: [21.3314, 107.4047], img: "10.jpg" },
-            { id: 11, name: "Cầu treo Nà Làng", coords: [21.5327, 107.3974], img: "11.jpg" },
-            { id: 12, name: "NVH Xóm Nương", coords: [21.3316, 107.4048], img: "12.jpg" },
-            { id: 13, name: "TT Văn Hóa Đông Bắc", coords: [21.3333, 107.4066], img: "13.jpg" },
-            { id: 14, name: "Phố đi bộ Tiên Yên", coords: [21.3311, 107.4023], img: "14.jpg" },
-            { id: 15, name: "Thác Lang Cang", coords: [21.2502, 107.2396], img: "15.jpg" },
-            { id: 16, name: "TT Điện Ảnh QN", coords: [20.9508, 107.0790], img: "16.jpg" },
-            { id: 17, name: "UBND Đông Ngũ", coords: [21.3361, 107.4842], img: "17.jpg" },
-            { id: 18, name: "NVH Đông Ngũ", coords: [21.3353, 107.4853], img: "18.jpg" },
-            { id: 19, name: "Cột mốc 1305", coords: [21.6490, 107.4412], img: "19.jpg" },
-            { id: 20, name: "Cầu treo Pắc Phe", coords: [21.5650, 107.4320], img: "20.jpg" },
-            { id: 21, name: "Lễ hội cầu mùa", coords: [21.4807, 107.4459], img: "21.jpg" },
-            { id: 22, name: "Mùa vàng Lục Hồn", coords: [21.5464, 107.4339], img: "22.jpg" },
-            { id: 23, name: "SVĐ Húc Động", coords: [21.4804, 107.4465], img: "23.jpg" },
-            { id: 24, name: "Miến dong Húc Động", coords: [21.4802, 107.4469], img: "24.jpg" },
-            { id: 25, name: "Miến dong Bình Liêu", coords: [21.5773, 107.4553], img: "25.jpg" }
+        var mediaData = [
+            // DỮ LIỆU CŨ 1-18
+            { id: 1, name: "UBND Tỉnh Quảng Ninh", coords: [20.9416427, 107.1237300], cat: "direct", img: "1.png", short: "Cơ quan hành chính cao nhất tỉnh." },
+            { id: 2, name: "Sở Văn hóa, Thể thao và Du lịch", coords: [20.9441014, 107.1226842], cat: "direct", img: "2.png", short: "Quản lý chuyên môn văn hóa." },
+            { id: 3, name: "Ban Tuyên Giáo Thành Ủy Hạ Long", coords: [20.9503152, 107.0762461], cat: "direct", img: "3.png", short: "Định hướng tư tưởng và dân vận." },
+            { id: 4, name: "Trung tâm Truyền Thông Quảng Ninh", coords: [20.9550728, 107.1003857], cat: "mass", img: "4.png", short: "Cơ quan báo chí đa phương tiện." },
+            { id: 5, name: "Văn Phòng Tỉnh Uỷ Quảng Ninh", coords: [20.9415212, 107.1221632], cat: "direct", img: "5.png", short: "Cơ quan tham mưu Tỉnh ủy." },
+            { id: 6, name: "Thác Khe Vằn (Hát Sóong Cọ)", coords: [21.4859035, 107.4783696], cat: "indirect", img: "6.png", short: "Thắng cảnh gắn với hát Sóong Cọ truyền thống." },
+            { id: 7, name: "Nhà văn hóa huyện Bình Liêu", coords: [21.5257778, 107.4001591], cat: "direct", img: "7.png", short: "Trung tâm sinh hoạt cộng đồng." },
+            { id: 8, name: "Đình Lục Nà", coords: [21.5496019, 107.4293962], cat: "indirect", img: "8.png", short: "Di tích lịch sử văn hóa." },
+            { id: 9, name: "Bảo tàng Quảng Ninh", coords: [20.9487164, 107.0975171], cat: "indirect", img: "9.png", short: "Không gian trưng bày di sản." },
+            { id: 10, name: "Uỷ ban nhân dân xã Tiên Yên", coords: [21.3314203, 107.4047782], cat: "direct", img: "10.png", short: "Điều hành cơ sở tại Tiên Yên." },
+            { id: 11, name: "Cầu treo Nà Làng", coords: [21.5327593, 107.3974608], cat: "indirect", img: "11.png", short: "Biểu tượng kết nối giao thương." },
+            { id: 12, name: "Nhà Văn Hoá Thôn Xóm Nương", coords: [21.3316177, 107.4048610], cat: "direct", img: "12.png", short: "Điểm truyền thông sát dân nhất." },
+            { id: 13, name: "TT Văn Hoá Thể Thao Vùng Đông Bắc", coords: [21.3333904, 107.4066926], cat: "direct", img: "13.png", short: "Hội tụ văn hóa các dân tộc." },
+            { id: 14, name: "Phố đi bộ Tiên Yên", coords: [21.3311427, 107.4023558], cat: "indirect", img: "14.png", short: "Không gian trải nghiệm văn hóa." },
+            { id: 15, name: "Thác Lang Cang", coords: [21.2502756, 107.2396242], cat: "indirect", img: "15.png", short: "Tiềm năng du lịch vùng cao." },
+            { id: 16, name: "TT Văn Hóa Điện Ảnh Quảng Ninh", coords: [20.9508456, 107.0790450], cat: "mass", img: "16.png", short: "Truyền thông qua nghệ thuật." },
+            { id: 17, name: "Uỷ ban nhân dân xã Đông Ngũ", coords: [21.3361067, 107.4842142], cat: "direct", img: "17.png", short: "Quản lý chính sách địa phương." },
+            { id: 18, name: "Nhà văn hóa xã Đông Ngũ", coords: [21.3353800, 107.4853199], cat: "direct", img: "18.png", short: "Nơi sinh hoạt văn nghệ dân gian." },
+            
+            // DỮ LIỆU BỔ SUNG 19-25
+            { id: 19, name: "Cột mốc 1305", coords: [21.6490242, 107.4412261], cat: "indirect", img: "19.png", short: "Điểm mốc biên giới hùng vĩ." },
+            { id: 20, name: "Cầu treo Pắc Phe", coords: [21.5650842, 107.4320415], cat: "indirect", img: "20.png", short: "Công trình giao thông đặc thù vùng cao." },
+            { id: 21, name: "Lễ hội cầu mùa Húc Động", coords: [21.4807508, 107.4459682], cat: "direct", img: "21.png", short: "Nét đẹp tâm linh người Sán Chỉ." },
+            { id: 22, name: "Mùa vàng Lục Hồn", coords: [21.5464404, 107.4339050], cat: "indirect", img: "22.png", short: "Thắng cảnh ruộng bậc thang Bình Liêu." },
+            { id: 23, name: "Sân vận động Húc Động (Đá bóng nữ)", coords: [21.4804925, 107.4465030], cat: "direct", img: "23.png", short: "Sự kiện văn hóa thể thao đặc sắc." },
+            { id: 24, name: "Miến dong Húc Động", coords: [21.4802679, 107.4469331], cat: "indirect", img: "24.png", short: "Sản phẩm OCOP chủ lực địa phương." },
+            { id: 25, name: "Miến dong Bình Liêu", coords: [21.5773374, 107.4553781], cat: "indirect", img: "25.png", short: "Thương hiệu nông sản đặc trưng." }
         ];
 
-        // 4. Đưa các điểm lên bản đồ
-        locations.forEach(function(loc) {
-            var marker = L.marker(loc.coords);
-            marker.bindPopup("<b>" + loc.name + "</b><br><button class='btn-detail' onclick='openPopup(" + loc.id + ")'>XEM ẢNH</button>");
-            clusters.addLayer(marker);
+        var markers = [];
+        mediaData.forEach(function(item) {
+            var color = item.cat === 'direct' ? "#ff0000" : item.cat === 'mass' ? "#0074D9" : "#2ecc71";
+            var m = L.circleMarker(item.coords, { radius: 12, fillColor: color, color: "#fff", weight: 2, fillOpacity: 0.9 });
+            m.bindPopup(`<b>${item.name}</b><br>${item.short}<button class="btn-explore" onclick="openDiscovery(${item.id})">XEM CHI TIẾT</button>`);
+            clusters.addLayer(m);
+            markers.push(item.coords);
         });
+
         map.addLayer(clusters);
+        map.fitBounds(markers, { padding: [50, 50] });
 
-        // 5. Hàm điều khiển Popup xem ảnh
-        function openPopup(id) {
-            var data = locations.find(x => x.id === id);
-            document.getElementById('overlayBody').innerHTML = 
-                "<h2>" + data.name + "</h2>" +
-                "<img src='" + data.img + "' class='pop-img' onerror=\"this.src='https://via.placeholder.com/600x400?text=Thieu+anh+" + data.img + "'\">";
-            document.getElementById('overlay').style.display = 'block';
+        function openDiscovery(id) {
+            var data = mediaData.find(x => x.id === id);
+            document.getElementById('discoveryBody').innerHTML = `
+                <img src="${data.img}" class="discovery-img" onerror="this.src='https://via.placeholder.com/600x400?text=Chưa+có+ảnh+${data.img}'">
+                <div class="discovery-text">
+                    <h2>${data.name}</h2>
+                    <p>Thông tin chi tiết về điểm nút truyền thông này gắn với chiến lược bảo tồn văn hóa Sán Chỉ. Hình ảnh minh họa: <b>${data.img}</b>.</p>
+                </div>
+                <button class="btn-explore" onclick="closeDiscovery()" style="width:200px; margin:40px auto;">QUAY LẠI</button>
+            `;
+            document.getElementById('discoveryOverlay').style.display = 'block';
+            document.body.style.overflow = 'hidden';
         }
 
-        function closePopup() {
-            document.getElementById('overlay').style.display = 'none';
+        function closeDiscovery() {
+            document.getElementById('discoveryOverlay').style.display = 'none';
+            document.body.style.overflow = 'auto';
         }
+
+        var legend = L.control({position: 'bottomright'});
+        legend.onAdd = function (map) {
+            var div = L.DomUtil.create('div', 'legend');
+            div.innerHTML = '<b>LOẠI KÊNH</b><br><i style="background:#ff0000"></i> Trực tiếp (Sự kiện, UBND)<br><i style="background:#0074D9"></i> Đại chúng (Báo chí, TV)<br><i style="background:#2ecc71"></i> Gián tiếp (OCOP, Thắng cảnh)';
+            return div;
+        };
+        legend.addTo(map);
     </script>
 </body>
 </html>
